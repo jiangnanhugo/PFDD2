@@ -86,131 +86,6 @@ void App1L1S111Bbcc::input_app(char *command, int narg, char **arg)
   error->all(FLERR,"Unrecognized command");
 }
 
-/* ----------------------------------------------------------------------
-   compute energy of site
-   ------------------------------------------------------------------------- */
-
-// double App1L1S111Bbcc::site_energy(int i)
-// {
-//   int isite = spin[i];
-//   int eng = 0;
-//   for (int j = 0; j < numneigh[i]; j++)
-//     if (isite != spin[neighbor[i][j]]) eng++;
-//   return (double) eng;
-// }
-
-/* ----------------------------------------------------------------------
-   rKMC method
-   perform a site event with null bin rejection
-   flip randomly to either spin
-   null bin extends to size 2
-   ------------------------------------------------------------------------- */
-
-// void App1L1S111Bbcc::site_event_rejection(int i, RandomPark *random)
-// {
-//   int oldstate = spin[i];
-//   double einitial = site_energy(i);
-
-//   // event = random spin from 1 to 2, including self
-
-//   if (random->uniform() < 0.5) spin[i] = 1;
-//   else spin[i] = 2;
-//   double efinal = site_energy(i);
-
-//   // accept or reject via Boltzmann criterion
-
-//   if (efinal <= einitial) {
-//   } else if (temperature == 0.0) {
-//     spin[i] = oldstate;
-//   } else if (random->uniform() > exp((einitial-efinal)*t_inverse)) {
-//     spin[i] = oldstate;
-//   }
-
-//   if (spin[i] != oldstate) naccept++;
-
-//   // set mask if site could not have changed
-//   // if site changed, unset mask of sites with affected propensity
-//   // OK to change mask of ghost sites since never used
-
-//   if (Lmask) {
-//     if (einitial < 0.5*numneigh[i]) mask[i] = 1;
-//     if (spin[i] != oldstate)
-//       for (int j = 0; j < numneigh[i]; j++)
-// 	mask[neighbor[i][j]] = 0;
-//   }
-// }
-
-/* ----------------------------------------------------------------------
-   KMC method
-   compute total propensity of owned site summed over possible events
-   ------------------------------------------------------------------------- */
-
-// double App1L1S111Bbcc::site_propensity(int i)
-// {
-//   // event = spin flip
-
-//   int oldstate = spin[i];
-//   int newstate = 1;
-//   if (oldstate == 1) newstate = 2;
-
-//   // compute energy difference between initial and final state
-//   // if downhill or no energy change, propensity = 1
-//   // if uphill energy change, propensity = Boltzmann factor
-
-//   double einitial = site_energy(i);
-//   spin[i] = newstate;
-//   double efinal = site_energy(i);
-//   spin[i] = oldstate;
-
-//   if (efinal <= einitial) return 1.0;
-//   else if (temperature == 0.0) return 0.0;
-//   else return exp((einitial-efinal)*t_inverse);
-// }
-
-/* ----------------------------------------------------------------------
-   KMC method
-   choose and perform an event for site
-   ------------------------------------------------------------------------- */
-
-// void App1L1S111Bbcc::site_event(int i, RandomPark *random)
-// {
-//   int m;
-
-//   // perform event = spin flip
-
-//   if (spin[i] == 1) spin[i] = 2;
-//   else spin[i] = 1;
-
-//   // compute propensity changes for self and neighbor sites
-//   // ignore update of neighbor sites with isite < 0
-
-//   int nsites = 0;
-//   int isite = i2site[i];
-//   sites[nsites++] = isite;
-//   propensity[isite] = site_propensity(i);
-
-//   for (int j = 0; j < numneigh[i]; j++) {
-//     m = neighbor[i][j];
-//     isite = i2site[m];
-//     if (isite < 0) continue;
-//     sites[nsites++] = isite;
-//     propensity[isite] = site_propensity(m);
-//   }
-
-//   solve->update(nsites,sites,propensity);
-// }
-
-/* ----------------------------------------------------------------------
-   New
-   returns the spin of one site
-   ------------------------------------------------------------------------- */
-
-// int App1L1S111Bbcc::site_spin (int i) {
-//   if ((i<0)||(i>nlocal))
-//     error->all (FLERR, "Invalid site index");
-//   return spin[i];
-// }
-
 
 void App1L1S111Bbcc::set_slip()
 {
@@ -221,13 +96,6 @@ void App1L1S111Bbcc::set_slip()
   s3 = sqrt(3.0);
   s2 = sqrt(2.0);
 
-  // fft->xn[0][0]= -1.0/s2;
-  // fft->xn[0][1]= 1.0/s2;
-  // fft->xn[0][2]= 0.0;
-  //
-  // fft->xb[0][0]= 1.0/s3;
-  // fft->xb[0][1]= 1.0/s3;
-  // fft->xb[0][2]= 1.0/s3;
 
   fft->xn[0][0]= 0.0;
   fft->xn[0][1]= 0.0;
@@ -236,28 +104,7 @@ void App1L1S111Bbcc::set_slip()
   fft->xb[0][0]= 1.0;
   fft->xb[0][1]= 0.0;
   fft->xb[0][2]= 0.0;
-  // Rotation
-  // xnf = (fft->xn[0][0]*fft->four[0][0] + fft->xn[0][1]*fft->four[0][1] + fft->xn[0][2]*fft->four[0][2])
-  //   /fft->normfour[0];
-  // ynf = (fft->xn[0][0]*fft->four[1][0] + fft->xn[0][1]*fft->four[1][1] + fft->xn[0][2]*fft->four[1][2])
-  //   /fft->normfour[1];
-  // znf = (fft->xn[0][0]*fft->four[2][0] + fft->xn[0][1]*fft->four[2][1] + fft->xn[0][2]*fft->four[2][2])
-  //   /fft->normfour[2];
-  //
-  // fft->xn[0][0] = xnf;
-  // fft->xn[0][1] = ynf;
-  // fft->xn[0][2] = znf;
-  //
-  // xbf = (fft->xb[0][0]*fft->four[0][0] + fft->xb[0][1]*fft->four[0][1] + fft->xb[0][2]*fft->four[0][2])
-  //   /fft->normfour[0];
-  // ybf = (fft->xb[0][0]*fft->four[1][0] + fft->xb[0][1]*fft->four[1][1] + fft->xb[0][2]*fft->four[1][2])
-  //   /fft->normfour[1];
-  // zbf = (fft->xb[0][0]*fft->four[2][0] + fft->xb[0][1]*fft->four[2][1] + fft->xb[0][2]*fft->four[2][2])
-  //   /fft->normfour[2];
-  //
-  // fft->xb[0][0] = xbf;
-  // fft->xb[0][1] = ybf;
-  // fft->xb[0][2] = zbf;
+  
 
   return;
 }

@@ -21,7 +21,6 @@ to reproduce, prepare derivative works, distribute copies to the public, perform
 
 using namespace PFDD_NS;
 
-/* ---------------------------------------------------------------------- */
 
 Solve::Solve(PFDD_C *pfdd_p, int narg, char **arg) : Pointers(pfdd_p)
 {
@@ -35,20 +34,9 @@ Solve::Solve(PFDD_C *pfdd_p, int narg, char **arg) : Pointers(pfdd_p)
 
 }
 
-/* ---------------------------------------------------------------------- */
 
 Solve::~Solve()
 {
   delete [] style;
 }
 
-/* ---------------------------------------------------------------------- */
-
-
-/* ---------------------------------------------------------------------- */
-
-
-/* ---------------------------------------------------------------------- */
-
-
-  

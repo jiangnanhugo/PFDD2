@@ -90,11 +90,3 @@ class CommLattice : protected Pointers {
 }
 
 #endif
-
-/* ERROR/WARNING messages:
-
-E: Site-site interaction was not found
-
-Internal SPPARKS error.
-
-*/

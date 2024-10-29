@@ -448,8 +448,5 @@ void App1L1S100B::stats_header(char *strtmp)
   sprintf(strpnt," %10s %10s","Time","Step");
   strpnt += strlen(strpnt);
 
-  // for (int m = 0; m < nspecies; m++) {
-  //   sprintf(strpnt," %s",sname[m]);
-  //   strpnt += strlen(strpnt);
-  // }
+  
 }

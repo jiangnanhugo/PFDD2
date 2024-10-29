@@ -463,35 +463,7 @@ void App::set_nonSchmid(int narg, char **arg)
 
 void App::init()
 {
-  // error checks
-
-  // if (solve == NULL && sweepflag == NOSWEEP)
-  //   error->all(FLERR,"App needs a KMC or rejection KMC solver");
-  // if (solve && sweepflag != NOSWEEP)
-  //   error->all(FLERR,"App cannot use both a KMC and rejection KMC solver");
-
-  // if (solve && allow_kmc == 0)
-  //   error->all(FLERR,"KMC events are not implemented in app");
-  // if (sweepflag != NOSWEEP && allow_rejection == 0)
-  //   error->all(FLERR,"Rejection events are not implemented in app");
-  // if (sweepflag != NOSWEEP && Lmask && allow_masking == 0)
-  //   error->all(FLERR,"Mask logic not implemented in app");
-
-  // if (nprocs > 1 && sectorflag == 0 && solve)
-  //   error->all(FLERR,"Cannot use KMC solver in parallel with no sectors");
-  // if (nprocs > 1 && sectorflag == 0 && sweepflag == RANDOM)
-  //   error->all(FLERR,"Cannot use random rejection KMC in parallel with no sectors");
-  // if (nprocs > 1 && sectorflag == 0 && sweepflag == RASTER)
-  //   error->all(FLERR,"Cannot use raster rejection KMC in parallel with no sectors");
-  // if (sectorflag && sweepflag == COLOR_STRICT)
-  //   error->all(FLERR,"Cannot use color/strict rejection KMC with sectors");
-
-  // if (sweepflag && dt_sweep == 0.0) error->all(FLERR,"App did not set dt_sweep");
-
-  // setup RN generators, only on first init
-  // ranapp is used for all options except sweep color/strict
-  // setup ranapp so different on every proc
-  // if color/strict, initialize per-lattice site seeds
+  
 
   if (ranapp == NULL) {
     ranapp = new RandomPark(ranmaster->uniform());
@@ -523,101 +495,6 @@ void App::setup()
   // app-specific setup, before propensities are computed
 
   setup_app();
-
-  // initialize propensities for KMC solver within each set
-  // comm insures ghost sites are up to date
-
-  // if (solve) {
-  //   comm->all();
-  //   for (int i = 0; i < nset; i++) {
-  //     for (int m = 0; m < set[i].nlocal; m++)
-  // 	set[i].propensity[m] = site_propensity(set[i].site2i[m]);
-  //     set[i].solve->init(set[i].nlocal,set[i].propensity);
-  //   }
-  // }
-
-  // // convert per-sector time increment info to KMC params
-
-  // if (sectorflag && solve) {
-  //   if (tstop > 0.0) {
-  //     Ladapt = false;
-  //     dt_kmc = tstop;
-  //   }
-
-  //   if (nstop > 0.0) {
-  //     Ladapt = true;
-  //     double pmax = 0.0;
-  //     for (int i = 0; i < nset; i++) {
-  // 	int ntmp = set[i].solve->get_num_active();
-  // 	if (ntmp > 0) {
-  // 	  double ptmp = set[i].solve->get_total_propensity();
-  // 	  ptmp /= ntmp;
-  // 	  pmax = MAX(ptmp,pmax);
-  // 	}
-  //     }
-  //     double pmaxall;
-  //     MPI_Allreduce(&pmax,&pmaxall,1,MPI_DOUBLE,MPI_MAX,world);
-  //     if (pmaxall > 0.0) dt_kmc = nstop/pmaxall;
-  //     else dt_kmc = stoptime-time;
-  //   }
-
-  //   dt_kmc = MIN(dt_kmc,stoptime-time);
-  // }
-
-  // // convert rejection info to rKMC params
-  // // nloop and nselect are set whether sectoring is used or not
-  // // if bothflag, list of active sets starts with nsector
-
-  // if (sweepflag != NOSWEEP) {
-  //   int first = 0;
-  //   if (bothflag) first = nsector;
-
-  //   if (sweepflag == RANDOM) {
-  //     if (nstop > 0.0) {
-  // 	for (int i = first; i < nset; i++) {
-  // 	  set[i].nloop = 0;
-  // 	  set[i].nselect = static_cast<int> (nstop*set[i].nlocal);
-  // 	}
-  //     }
-  //     if (tstop > 0.0) {
-  // 	double n = tstop / (dt_sweep/nglobal);
-  // 	for (int i = first; i < nset; i++) {
-  // 	  set[i].nloop = 0;
-  // 	  set[i].nselect = static_cast<int> (n/nglobal * set[i].nlocal);
-  // 	}
-  //     }
-
-  //   } else if (sweepflag == RASTER ||
-  // 	       sweepflag == COLOR || sweepflag == COLOR_STRICT) {
-  //     int n;
-  //     if (nstop > 0.0) n = static_cast<int> (nstop);
-  //     if (tstop > 0.0) n = static_cast<int> (tstop/dt_sweep);
-  //     for (int i = first; i < nset; i++) {
-  // 	set[i].nloop = n;
-  // 	set[i].nselect = n * set[i].nlocal;
-  //     }
-  //   }
-
-  //   double nme = 0.0;
-  //   for (int i = first; i < nset; i++) nme += set[i].nselect;
-  //   double ntotal;
-  //   MPI_Allreduce(&nme,&ntotal,1,MPI_DOUBLE,MPI_SUM,world);
-
-  //   dt_rkmc = ntotal/nglobal * dt_sweep;
-  //   if (dt_rkmc == 0.0)
-  //     error->all(FLERR,"Choice of sector stop led to no rKMC events");
-  //   dt_rkmc = MIN(dt_rkmc,stoptime-time);
-  // }
-
-  // // setup sitelist if sweepflag = RANDOM
-  // // do this every run since sector timestep could have changed
-
-  // if (sweepflag == RANDOM) {
-  //   memory->destroy(sitelist);
-  //   int n = 0;
-  //   for (int i = 0; i < nset; i++) n = MAX(n,set[i].nselect);
-  //   memory->create(sitelist,n,"app:sitelist");
-  // }
 
   // FFT setup
   fft->setup();

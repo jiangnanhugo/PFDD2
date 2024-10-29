@@ -47,16 +47,3 @@ namespace PFDD_NS {
 
 #endif
 #endif
-
-/* ERROR/WARNING messages:
-
-E: Invalid diag style
-
-Check the input script syntax and compare to the documentation
-for the command.
-
-E: Invalid spin value for magnetization
-
-The spin of one site must be 1 or 2.
-
-*/

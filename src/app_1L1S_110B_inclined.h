@@ -49,22 +49,3 @@ namespace PFDD_NS {
 #endif
 #endif
 
-/* ERROR/WARNING messages:
-
-E: Illegal ... command
-
-Self-explanatory.  Check the input script syntax and compare to the
-documentation for the command.  You can use -echo screen as a
-command-line option when running SPPARKS to see the offending
-line.
-
-E: One or more sites have invalid values
-
-The application only allows sites to be initialized with specific
-values.
-
-E: Invalid site index
-Site index must be positive and smaller or equal than the total
-number of sites.
-
-*/

@@ -86,130 +86,6 @@ void App3D2S::input_app(char *command, int narg, char **arg)
   error->all(FLERR,"Unrecognized command");
 }
 
-/* ----------------------------------------------------------------------
-   compute energy of site
-   ------------------------------------------------------------------------- */
-
-// double App3D2S::site_energy(int i)
-// {
-//   int isite = spin[i];
-//   int eng = 0;
-//   for (int j = 0; j < numneigh[i]; j++)
-//     if (isite != spin[neighbor[i][j]]) eng++;
-//   return (double) eng;
-// }
-
-/* ----------------------------------------------------------------------
-   rKMC method
-   perform a site event with null bin rejection
-   flip randomly to either spin
-   null bin extends to size 2
-   ------------------------------------------------------------------------- */
-
-// void App3D2S::site_event_rejection(int i, RandomPark *random)
-// {
-//   int oldstate = spin[i];
-//   double einitial = site_energy(i);
-
-//   // event = random spin from 1 to 2, including self
-
-//   if (random->uniform() < 0.5) spin[i] = 1;
-//   else spin[i] = 2;
-//   double efinal = site_energy(i);
-
-//   // accept or reject via Boltzmann criterion
-
-//   if (efinal <= einitial) {
-//   } else if (temperature == 0.0) {
-//     spin[i] = oldstate;
-//   } else if (random->uniform() > exp((einitial-efinal)*t_inverse)) {
-//     spin[i] = oldstate;
-//   }
-
-//   if (spin[i] != oldstate) naccept++;
-
-//   // set mask if site could not have changed
-//   // if site changed, unset mask of sites with affected propensity
-//   // OK to change mask of ghost sites since never used
-
-//   if (Lmask) {
-//     if (einitial < 0.5*numneigh[i]) mask[i] = 1;
-//     if (spin[i] != oldstate)
-//       for (int j = 0; j < numneigh[i]; j++)
-// 	mask[neighbor[i][j]] = 0;
-//   }
-// }
-
-/* ----------------------------------------------------------------------
-   KMC method
-   compute total propensity of owned site summed over possible events
-   ------------------------------------------------------------------------- */
-
-// double App3D2S::site_propensity(int i)
-// {
-//   // event = spin flip
-
-//   int oldstate = spin[i];
-//   int newstate = 1;
-//   if (oldstate == 1) newstate = 2;
-
-//   // compute energy difference between initial and final state
-//   // if downhill or no energy change, propensity = 1
-//   // if uphill energy change, propensity = Boltzmann factor
-
-//   double einitial = site_energy(i);
-//   spin[i] = newstate;
-//   double efinal = site_energy(i);
-//   spin[i] = oldstate;
-
-//   if (efinal <= einitial) return 1.0;
-//   else if (temperature == 0.0) return 0.0;
-//   else return exp((einitial-efinal)*t_inverse);
-// }
-
-/* ----------------------------------------------------------------------
-   KMC method
-   choose and perform an event for site
-   ------------------------------------------------------------------------- */
-
-// void App3D2S::site_event(int i, RandomPark *random)
-// {
-//   int m;
-
-//   // perform event = spin flip
-
-//   if (spin[i] == 1) spin[i] = 2;
-//   else spin[i] = 1;
-
-//   // compute propensity changes for self and neighbor sites
-//   // ignore update of neighbor sites with isite < 0
-
-//   int nsites = 0;
-//   int isite = i2site[i];
-//   sites[nsites++] = isite;
-//   propensity[isite] = site_propensity(i);
-
-//   for (int j = 0; j < numneigh[i]; j++) {
-//     m = neighbor[i][j];
-//     isite = i2site[m];
-//     if (isite < 0) continue;
-//     sites[nsites++] = isite;
-//     propensity[isite] = site_propensity(m);
-//   }
-
-//   solve->update(nsites,sites,propensity);
-// }
-
-/* ----------------------------------------------------------------------
-   New
-   returns the spin of one site
-   ------------------------------------------------------------------------- */
-
-// int App3D2S::site_spin (int i) {
-//   if ((i<0)||(i>nlocal))
-//     error->all (FLERR, "Invalid site index");
-//   return spin[i];
-// }
 
 
 void App3D2S::set_slip()
@@ -223,33 +99,10 @@ void App3D2S::set_slip()
   fft->xn[0][1]= 1.0/sqrt(3);
   fft->xn[0][2]= 1.0/sqrt(3);
 
-  // fft->xn[1][0]= 1.0/sqrt(3);
-  // fft->xn[1][1]= 1.0/sqrt(3);
-  // fft->xn[1][2]= 1.0/sqrt(3);
 
   fft->xb[0][0]= -1.0/2.0;
   fft->xb[0][1]= 1.0/2.0;
   fft->xb[0][2]= 0.0;
-
-  // fft->xb[1][0]= 1.0/2.0;
-  // fft->xb[1][1]= 1.0/2.0;
-  // fft->xb[1][2]= 0.0;
-
-  // fft->xn[0][0]= 0;
-  // fft->xn[0][1]= 0;
-  // fft->xn[0][2]= 1.0;
-
-  // fft->xn[1][0]= 0;
-  // fft->xn[1][1]= 0;
-  // fft->xn[1][2]= 1.0;
-
-  // fft->xb[0][0]= 1.0;
-  // fft->xb[0][1]= 0.0;
-  // fft->xb[0][2]= 0.0;
-
-  // fft->xb[1][0]= 1.0;
-  // fft->xb[1][1]= 0.0;
-  // fft->xb[1][2]= 0.0;
 
   // Rotation
   for(int i=0; i<slip_systems; i++){
